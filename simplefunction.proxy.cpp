@@ -38,6 +38,8 @@ using namespace C150NETWORK;  // for all the comp150 utilities
 
 int add(int x, int y) {
     RPCPROXYSOCKET->write("add", strlen("add")+1); // write function name including null
+    std::pair<int, int> args{x, y};
+    RPCPROXYSOCKET->write((char*)&args, sizeof(args));
 
     char readBuffer[sizeof(int)];
     RPCPROXYSOCKET->read(readBuffer, sizeof(int));

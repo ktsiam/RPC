@@ -12,12 +12,12 @@ void __add(/*const std::tuple<int, int> &args*/) {
     std::string done = "DONE";
     
     //const auto& ret = add(std::get<0>(args), std::get<1>(args));
-    int ret = add(1, 2);
-    
-    const char *data = reinterpret_cast<char*>(&ret);
-    std::string serial_ret{data, data+sizeof(ret)};
-    
-    RPCSTUBSOCKET->write(serial_ret.c_str(), serial_ret.size()+1);
+
+    std::pair<int, int> args;
+    RPCSTUBSOCKET->read((char*)&args, sizeof(args));
+    std::cerr << "Adding : " << args.first << " + " << args.second << std::endl;
+    int ret = add(args.first, args.second);    
+    RPCSTUBSOCKET->write((char*)&ret, sizeof(ret));
 }
 
 void __badFunction(char *functionName) {
