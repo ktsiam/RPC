@@ -1,0 +1,8 @@
+10/27/2019 20:43:43.171854 ./simplefunctionclient: rpcproxyinitialize: Creating C150StreamSocket
+10/27/2019 20:43:43.203874 ./simplefunctionclient: C150StreamSocket::C150StreamSocket: user port is 7020
+10/27/2019 20:43:43.203902 ./simplefunctionclient: C150StreamSocket::connect(comp117-01) called
+10/27/2019 20:43:43.206877 ./simplefunctionclient: C150StreamSocket::write: attempting to send packet with len=4 |add.|
+10/27/2019 20:43:43.206918 ./simplefunctionclient: C150StreamSocket::write: Success writing packet with len=4 |add.|
+10/27/2019 20:43:43.206945 ./simplefunctionclient: C150StreamSocket::read: Ready to read data
+10/27/2019 20:43:43.207338 ./simplefunctionclient: C150StreamSocket::read: Dropped through read with len=4
+10/27/2019 20:43:43.207364 ./simplefunctionclient: C150StreamSocket::read: successful read with len=4 |....|

@@ -8,92 +8,20 @@
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
-void getFunctionNamefromStream();
-
-void __add(const std::tuple<int, int> &args) {
+void __add(/*const std::tuple<int, int> &args*/) {
     std::string done = "DONE";
-
-    const auto& ret = add(std::get<0>(args), std::get<1>(args));
+    
+    //const auto& ret = add(std::get<0>(args), std::get<1>(args));
+    int ret = add(1, 2);
     
     const char *data = reinterpret_cast<char*>(&ret);
-    std::string serial_ret{data, data+sizeof(z)};
+    std::string serial_ret{data, data+sizeof(ret)};
     
-    RPCSOCKET->write(serial_ret.c_str(), serial_ret.size()+1);
+    RPCSTUBSOCKET->write(serial_ret.c_str(), serial_ret.size()+1);
 }
-
-
-
-void __func1() {
-  char doneBuffer[5] = "DONE";  // to write magic value DONE + null
-
-  //
-  // Time to actually call the function 
-  //
-  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking func1()");
-  func1();
-
-  //
-  // Send the response to the client
-  //
-  // If func1 returned something other than void, this is
-  // where we'd send the return value back.
-  //
-  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
-  RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
-}
-
-void __func2() {
-  char doneBuffer[5] = "DONE";  // to write magic value DONE + null
-
-  //
-  // Time to actually call the function 
-  //
-  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking func2()");
-  func2();
-
-  //
-  // Send the response to the client
-  //
-  // If func2 returned something other than void, this is
-  // where we'd send the return value back.
-  //
-  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func2() -- responding to client");
-  RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
-}
-
-void __func3() {
-  char doneBuffer[5] = "DONE";  // to write magic value DONE + null
-
-  //
-  // Time to actually call the function 
-  //
-  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking func3()");
-  func3();
-
-  //
-  // Send the response to the client
-  //
-  // If func3 returned something other than void, this is
-  // where we'd send the return value back.
-  //
-  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func3() -- responding to client");
-  RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
-}
-
-
-//
-//     __badFunction
-//
-//   Pseudo-stub for missing functions.
-//
 
 void __badFunction(char *functionName) {
   char doneBuffer[5] = "BAD";  // to write magic value DONE + null
-
-
-  //
-  // Send the response to the client indicating bad function
-  //
 
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: received call for nonexistent function %s()",functionName);
   RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
@@ -107,27 +35,19 @@ void __badFunction(char *functionName) {
 //
 // ======================================================================
 
+
+void getFunctionNamefromStream();
+
 // forward declaration
 void getFunctionNameFromStream(char *buffer, unsigned int bufSize);
 
-
-
-//
-//                         dispatchFunction()
-//
-//   Called when we're ready to read a new invocation request from the stream
-//
 
 void dispatchFunction() {
 
 
   char functionNameBuffer[50];
 
-  //
-  // Read the function name from the stream -- note
-  // REPLACE THIS WITH YOUR OWN LOGIC DEPENDING ON THE 
-  // WIRE FORMAT YOU USE
-  //
+  //std::pair<std::string, 
   getFunctionNameFromStream(functionNameBuffer,sizeof(functionNameBuffer));
 
   //
@@ -136,12 +56,8 @@ void dispatchFunction() {
   //
 
   if (!RPCSTUBSOCKET-> eof()) {
-    if (strcmp(functionNameBuffer,"func1") == 0)
-      __func1();
-    else   if (strcmp(functionNameBuffer,"func2") == 0)
-      __func2();
-    else   if (strcmp(functionNameBuffer,"func3") == 0)
-      __func3();
+    if (strcmp(functionNameBuffer,"add") == 0)
+      __add();
     else
       __badFunction(functionNameBuffer);
   }
