@@ -4,21 +4,41 @@
 
 #include <cstdio>
 #include <cstring>
+#include <tuple>
 #include "c150debug.h"
+#include <functional>
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
-void __add(/*const std::tuple<int, int> &args*/) {
-    std::string done = "DONE";
-    
-    //const auto& ret = add(std::get<0>(args), std::get<1>(args));
+template <class Ret_T, class ...Args, class F>
+void __generic(F&& fun) {
+    std::tuple<Args...> args;
+	RPCSTUBSOCKET->read((char*)&args, sizeof(args));
 
-    std::pair<int, int> args;
-    RPCSTUBSOCKET->read((char*)&args, sizeof(args));
-    std::cerr << "Adding : " << args.first << " + " << args.second << std::endl;
-    int ret = add(args.first, args.second);    
+    Ret_T ret = std::apply(fun, args); 
+   
     RPCSTUBSOCKET->write((char*)&ret, sizeof(ret));
 }
+
+void __add() {
+    __generic<int, int, int>(add);
+}
+
+void __sub() {
+    __generic<int, int, int>(sub);
+}
+
+
+// void __add(/*const std::tuple<int, int> &args*/) {
+//     using Args_type = typename std::tuple<int, int>;
+//     using Ret_type  = int;
+//     
+//     Args_type args;
+//     RPCSTUBSOCKET->read((char*)&args, sizeof(args));
+//     
+//     Ret_type ret = add(std::get<0>(args), std::get<1>(args));    
+//     RPCSTUBSOCKET->write((char*)&ret, sizeof(ret));
+// }
 
 void __badFunction(char *functionName) {
   char doneBuffer[5] = "BAD";  // to write magic value DONE + null
@@ -58,6 +78,8 @@ void dispatchFunction() {
   if (!RPCSTUBSOCKET-> eof()) {
     if (strcmp(functionNameBuffer,"add") == 0)
       __add();
+    else if (strcmp(functionNameBuffer, "sub") == 0)
+      __sub();
     else
       __badFunction(functionNameBuffer);
   }

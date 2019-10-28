@@ -32,7 +32,7 @@ C150AR = $(C150LIB)c150ids.a
 C150IDSRPC = $(COMP117)/files/RPC.framework/
 C150IDSRPCAR = $(C150IDSRPC)c150idsrpc.a
 
-CPPFLAGS = -g -Wall -I$(C150IDSRPC) -I$(C150LIB)
+CPPFLAGS = -g -std=c++17 -Wall -I$(C150IDSRPC) -I$(C150LIB)
 # CPPFLAGS = -g -Wall -Werror  -I$(C150LIB)
 
 
