@@ -14,11 +14,8 @@ void rpcstubinitialize();
 void dispatchFunction();
 void getFunctionNameFromStream(char *buffer, unsigned int bufSize);
 
-// CLEANUP TBD
-
 template <class> 
 struct is_tuple: std::false_type {};
-
 template <class ...T> 
 struct is_tuple<std::tuple<T...>>: std::true_type {};
 
@@ -29,7 +26,7 @@ template<class ...Tps>
 void for_each_in_tuple(std::tuple<Tps...>&);
 
 template <class Arg>
-void type_without_strings(Arg &arg) {
+void populate_strings_in(Arg &arg) {
     if constexpr (std::is_array_v<Arg>) {
         constexpr std::size_t size = sizeof(arg)/sizeof(arg[0]);
         for_each_in_array<size>(arg);
@@ -44,13 +41,12 @@ void type_without_strings(Arg &arg) {
         std::string buf{buffer[0], buffer[size]};
         memcpy((char*)&arg, (char*)&buf, sizeof(buf));
     }
-       
 }
 
 template <class Tp, std::size_t ...Is>
 void for_each_in_array_helper(Tp* elements, 
                               std::index_sequence<Is...> const &) { 
-    (type_without_strings(elements[Is]), ...);
+    (populate_strings_in(elements[Is]), ...);
 }
 
 template <std::size_t SIZE, class Tp>
@@ -58,15 +54,11 @@ void for_each_in_array(Tp* elements) {
     for_each_in_array_helper(elements, std::make_index_sequence<SIZE>{});
 }
 
-template<size_t i, class ...Tps>
+template<size_t I, class ...Tps>
 void for_each_in_tuple(std::tuple<Tps...> &tup) {
-    if constexpr (i == sizeof...(Tps)) {
-        return;
-    }
-    else {
-        std::cerr << "CHANGING INDEX " << i << std::endl;
-        type_without_strings(std::get<i>(tup));
-        for_each_in_tuple<i+1>(tup); 
+    if constexpr (I != sizeof...(Tps)) {
+        populate_strings_in(std::get<I>(tup));
+        for_each_in_tuple<I+1>(tup);
     }
 }
 
@@ -83,7 +75,5 @@ void __generic(F&& fun) {
     Ret_T ret = std::apply(fun, args);    
     RPCSTUBSOCKET->write((char*)&ret, sizeof(ret));
 }
-
-
 
 #endif
