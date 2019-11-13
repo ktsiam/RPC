@@ -39,7 +39,8 @@ void populate_strings_in(Arg &arg) {
         char buffer[size];
         //RPCSTUBSOCKET->read(buffer, sizeof(buffer));
         std::string buf{buffer[0], buffer[size]};
-        memcpy((char*)&arg, (char*)&buf, sizeof(buf));
+        new (&arg) std::string(std::move(buf));
+        //memcpy((char*)&arg, (char*)&buf, sizeof(buf));
     }
 }
 
