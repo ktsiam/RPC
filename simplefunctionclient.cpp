@@ -1,53 +1,7 @@
-// --------------------------------------------------------------
-//
-//                        simplefunctionclient.cpp
-//
-//        Author: Noah Mendelsohn         
-//   
-//
-//        This is a test program designed to call a few demonstration
-//        functions, after first enabling the COMP 150-IDS rpcproxyhelper.
-//        (The purpose of the helper is to open a TCP stream connection
-//        to the proper server, and to leave the socket pointer where
-//        the generated proxies can find it.
-//
-//        NOTE: Although this example does nothing except test the
-//        functions, we may test your proxies and stubs with client
-//        applications that do real work. 
-//
-//        NOTE: When actually testing your RPC submission, you will use
-//        a different client application for each set of functions. This
-//        one is just to show a simple example.
-//
-//        NOTE: The only thing that makes this different from 
-//        an ordinary local application is the call to
-//        rpcproxyinitialize. If you commented that out, you could
-//        link this with the local version of simplefunction.o
-//        (which has the remotable function implementations)							    
-//
-//        COMMAND LINE
-//
-//              simplefunctionclient <servername> 
-//
-//        OPERATION
-//
-//
-//       Copyright: 2012 Noah Mendelsohn
-//     
-// --------------------------------------------------------------
 
-
-// IMPORTANT! WE INCLUDE THE IDL FILE AS IT DEFINES THE INTERFACES
-// TO THE FUNCTIONS WE'RE REMOTING. OF COURSE, THE PARTICULAR IDL FILE
-// IS CHOSEN ACCORDING TO THE TEST OR APPLICATION
-// 
-// NOTE THAT THIS IS THE SAME IDL FILE INCLUDED WITH THE PROXIES
-// AND STUBS, AND ALSO USED AS INPUT TO AUTOMATIC PROXY/STUB
-// GENERATOR PROGRAM
-
-#include "simplefunction.idl"
 
 #include "rpcproxyhelper.h"
+#include "structs.idl"
 
 #include "c150debug.h"
 #include "c150grading.h"
@@ -114,11 +68,14 @@ main(int argc, char *argv[]) {
        // 
        // Call (possibly remote) func1
        //       
-       int x = add();
-       int y = add();
-       int z = sub(16, 8);
-       std::cerr << "DONE!!!!!!!\n";
-       std::cerr << "got " << x << ' ' << y << ' ' << z << std::endl;
+       // add(); int x = 3;
+       // add(); int y = 4;
+       // int z = sub(16, 8);
+       // std::cerr << "DONE!!!!!!!\n";
+       // std::cerr << "got " << x << ' ' << y << ' ' << z << std::endl;
+       
+       Person bob{"bob", "builder", 47};
+       findPerson({bob, bob, bob});
        exit(0);
      }
 

@@ -1,2 +1,2 @@
-int add();
+void add();
 int sub(int x, int y);
