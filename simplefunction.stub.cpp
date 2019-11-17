@@ -2,22 +2,18 @@
 #include <tuple>
 #include <cassert>
 
-
-/* GENERATED */
-
 #include "simplefunction.idl"
 
 void __add() {
-    __generic<int, int, int>(add);
+    __deserialize_and_apply<int>(add);
 }
 
 void __sub() {
-    __generic<int, int, int>(sub);
+    __deserialize_and_apply<int, int, int>(sub);
 }
 
 void dispatchFunction() {
     char functionNameBuffer[50];    
-    std::cerr << "GETTING FUNCTION NAME\n";
     getFunctionNameFromStream(functionNameBuffer,
                               sizeof(functionNameBuffer));
     if (!RPCSTUBSOCKET-> eof()) {
@@ -32,8 +28,4 @@ void dispatchFunction() {
         assert(false && "function contract not found");
     }
 }
-
-
-
-/* /GENERATED */
 

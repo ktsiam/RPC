@@ -114,8 +114,8 @@ main(int argc, char *argv[]) {
        // 
        // Call (possibly remote) func1
        //       
-       int x = add(8, 16);
-       int y = add(32, 64);
+       int x = add();
+       int y = add();
        int z = sub(16, 8);
        std::cerr << "DONE!!!!!!!\n";
        std::cerr << "got " << x << ' ' << y << ' ' << z << std::endl;

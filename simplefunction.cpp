@@ -24,8 +24,8 @@
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
-int add(int x, int y) {
-    return x+y;
+int add() {
+    return 13;
 }
 
 int sub(int x, int y) {
