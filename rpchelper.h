@@ -7,7 +7,7 @@
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
-struct Void{};
+struct Void {};
 
 // determines whether type is specialization of tuple
 template <class> 

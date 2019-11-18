@@ -17,6 +17,7 @@ Ret_T serialize_and_apply(const char *fname, Args ...vargs) {
     std::cerr << "CALLING serialize\n";
     serialize(args, RPCPROXYSOCKET);
     if constexpr (std::is_void_v<Ret_T>) {
+        std::cerr << "VOID: deserializing and returning\n";
         deserialize<Void>(RPCPROXYSOCKET);
     } else {
         std::cerr << "DESERIALIZING AND RETURNING\n";

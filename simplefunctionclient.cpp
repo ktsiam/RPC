@@ -6,6 +6,7 @@
 #include "c150debug.h"
 #include "c150grading.h"
 #include <fstream>
+#include <iostream>
 
 using namespace std;          // for C++ std library
 using namespace C150NETWORK;  // for all the comp150 utilities 
@@ -75,7 +76,8 @@ main(int argc, char *argv[]) {
        // std::cerr << "got " << x << ' ' << y << ' ' << z << std::endl;
        
        Person bob{"bob", "builder", 47};
-       findPerson({bob, bob, bob});
+       Person mark = findPerson({bob, bob, bob});
+       std::cout << "name : " << mark.firstname << ' ' << mark.lastname << ' ' << mark.age << std::endl;
        exit(0);
      }
 
