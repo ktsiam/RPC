@@ -1,7 +1,7 @@
 
 
 #include "rpcproxyhelper.h"
-#include "structs.idl"
+#include "lotsofstuff.idl"
 
 #include "c150debug.h"
 #include "c150grading.h"
@@ -78,6 +78,37 @@ main(int argc, char *argv[]) {
        Person bob{"bob", "builder", 47};
        Person mark = findPerson({bob, bob, bob});
        std::cout << "name : " << mark.firstname << ' ' << mark.lastname << ' ' << mark.age << std::endl;
+
+       func1();
+       func2();
+       func3();
+       
+       std::cout << "1 + 2 = " << sqrt(1,2) << std::endl;
+       int arr[24] = {0};
+       int arr2[24] = {0};
+       // std::array<int, 24> arr = {0};
+       // std::array<int, 24> arr2 = {0};
+
+       arr[0] = 17;
+       arr2[0] = 36;
+       
+       std::cout << "17 + 36 = " << takesTwoArrays(arr, arr2) << std::endl;
+
+       int arr3[24][15] = {0};
+       arr3[0][0] = 3;
+
+       //std::cout << "17 + 3 + 3 = " << showsArraysofArrays(arr, arr3, arr3) << std::endl;
+       
+       std::string s = "Mr Krabs";
+
+       std::cout << "mr krabs: " << upcase(s) << std::endl;
+
+       std::cout << "3.1 * 4.2 = " << multiply(3.1, 4.2) << std::endl;
+
+       rectangle r = {3, 4};
+       
+       std::cout << "3 * 4 = " << area(r) << std::endl;
+
        exit(0);
      }
 

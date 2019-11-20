@@ -1,38 +1,34 @@
 #ifndef __RPCHELPER_H_INCLUDED__  
 #define __RPCHELPER_H_INCLUDED__  
+
 #include "c150streamsocket.h"
 #include "c150debug.h"
 #include <tuple>
 
-using namespace C150NETWORK;  // for all the comp150 utilities 
-
-template <class Out, class In>
-auto cast_to(In &&in) {
+template <class Out, class In, bool LVALUE = true>
+Out cast_to(In &&in) {
     using decay_In  = std::decay_t<In>;
     using decay_Out = std::decay_t<Out>;
-    using Ref_Out = std::add_rvalue_reference_t<decay_Out>;
+
+    if (std::is_pointer_v<decay_In>) {
+        if (std::is_pointer_v<std::decay_t<Out>>) {
+            return reinterpret_cast<Out>(In);
+        }        
+        using Ret_Type = std::conditional<LVALUE, 
+            std::add_lvalue_reference_t<Out>,
+            std::add_rvalue_reference_t<Out>>;
+
+        return reinterpret_cast<Ret_Type>(*In);
+    }
+
     
-    // 2 arrays
-    if constexpr (std::is_pointer_v<decay_In> &&
-                  std::is_pointer_v<decay_Out>) {
-        return reinterpret_cast<Ref_Out>(in);
-    }
-    // array -> non-array
-    else if constexpr (std::is_pointer_v<decay_In>) {
-        // dereferencing array to Out type
-        return reinterpret_cast<Ref_Out>(*in);
-    }
-    // non-array -> array
-    else if constexpr (std::is_pointer_v<decay_Out>) {
-        return reinterpret_cast<Ref_Out>(&in);
-    }
-    // non-array -> non-array
-    else {
-        return reinterpret_cast<Ref_Out>(in);
-    }
 }
 
-struct Void {};
+
+
+using namespace C150NETWORK;  // for all the comp150 utilities 
+
+struct Void { char _ = 0; };
 
 // determines whether type is specialization of tuple
 template <class> 
