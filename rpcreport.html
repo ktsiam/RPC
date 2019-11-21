@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<!-- 
+ **********************************************************
+
+             TUFTS COMP 117 HOMEWORK ASSIGNMENT
+
+        Fill in your name, e-mail and answers to questions
+        in the sections provided below.
+
+          All questions are marked up: <li class="q">
+          All answers are marked up:   <li class="a">
+
+
+     PLEASE DO NOT MODIFY ANY THING OTHER THAN THE 
+     NAME, E-MAIL, AND ANSWER FIELDS (you may also add
+     css declarations in the <head> if you need them,
+     but usually you won't.
+
+ **********************************************************
+ -->
+
+
+<html>
+<head>
+<meta charset="utf-8"> 
+<title>Tufts COMP 117 Assignment &#8212; Remote Procedure Call Project Report</title>
+<link rel="stylesheet" type="text/css" href="http://www.cs.tufts.edu/comp/117/style/homework.css" />
+</head>
+
+<body class="homework">
+
+
+<!-- ******************************************************
+	   YOU MUST FILL IN YOUR NAME, UTLN AND EMAIL BELOW!!
+         (You may copy this from an earlier assignment
+                         if you like)
+
+     ****************************************************** -->
+
+
+<div class="student">
+<p>
+<span class="label">Student1 name: </span>
+Kostas Tsiampouris
+<br>
+
+<span class="label">UTLN: </span>
+ktsiam01
+<br>
+
+<span class="label">E-mail: </span>
+<!-- DON'T FORGET UP UPDATE THE MAILTO: URI BELOW ALONG WITH
+     YOUR EMAIL IN THE ANCHOR.  IT SHOULD LOOK LIKE:
+ <a href="mailto:lady.gaga@cs.tufts.edu">lady.gaga@cs.tufts.edu</a>
+--> 
+
+<a href="mailto:Konstantinos.Tsiampouris@tufts.edu"<>Konstantinos.Tsiampouris@tufts.edu</a>
+<br>
+<br>
+<br>
+<span class="label">Student2 name: </span>
+Madeleine Schwartz
+<br>
+<span class="label">UTLN: </span>
+mschwa08
+<br>
+
+<span class="label">E-mail </span>
+<!-- DON'T FORGET UP UPDATE THE MAILTO: URI BELOW ALONG WITH
+     YOUR EMAIL IN THE ANCHOR.  IT SHOULD LOOK LIKE:
+ <a href="mailto:lady.gaga@cs.tufts.edu">lady.gaga@cs.tufts.edu</a>
+--> 
+
+<a href="mailto:madeleine.schwartz@tufts.edu">madeleine.schwartz@tufts.edu</a>
+
+<br>
+</p>
+</div>
+
+
+
+
+<div class="UpperLeftHeader">
+<p>Tufts COMP 117 (Spring 2019):
+<br>
+Internet-scale Distributed Systems
+</p>
+</div>
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - -
+		HOMEWORK TITLE
+  - -  - - - - - - - - - - - - - - - - - - - - - - -->
+
+
+<div class="headerdiv">
+<h1>
+Tufts COMP 117:<br>
+RPC Project Report
+</h1>
+</div>
+
+<!-- ******************************************************
+
+              PLEASE ANSWER QUESTIONS IN THE SECTIONS
+	      LABELED class="a" (for answer)
+
+     ****************************************************** -->
+
+
+
+
+<div class="main">
+
+<h2 id="questions">Questions</h2>
+<!-- - - - - - - - - - - - - - - - - - - - - - - -
+		QUESTION
+  - -  - - - - - - - - - - - - - - - - - - - - - - -->
+<div class="qa">
+
+<ol class="qa">
+<li class="q">Did you implement an rpcgenerate program and does it handle all legal IDL files? If not, which test cases should we try in your submission  directory?</li>
+<li class="a">
+
+Yes. We have an rpc generate program that handles all legal IDL files.
+
+
+</li>
+
+<li class="q">What programming language did you use for your rpcgenerate program?</li>
+<li class="a">
+Put an X in the space next to your choice:
+<ul>
+  <li>_____ C++ (using the provided type framework)</li>
+  <li>__X__ Python (using the provided <code>idl_to_json</code>)</li>
+  <li>_____ Ruby (using the provided <code>idl_to_json</code>)</li>
+</ul>
+</li>
+
+<li class="q">Briefly explain the protocol you use over TCP to request function calls and return the results.</li>
+<li class="a">
+
+To serialize we send the object bytes over TCP followed by all string contents in order of how they appear in the
+object. 
+<br>
+To deserialize we read in all the object bytes and then the string contents, reconstructing the object.
+<br>
+Client
+<ul>
+  <li>Send the function name</li>
+  <li>Serialize the arguments as a tuple</li>
+  <li>Deserialize the return value, if void it's one byte</li>
+</ul>
+<br>
+Server
+<ul>
+  <li>Receive the function name</li>
+  <li>Deserialize the tuple of arguments</li>
+  <li>Serialize the return value, or one byte if void</li>
+</ul>
+
+
+</li>
+
+<li class="q">Did you get help from anyone other than your teammate? If "yes", then briefly explain who helped you and how.</li>
+<li class="a">
+Stack Overflow!
+</li>
+
+
+<li class="q">(optional) Do you have any other comments on this assignment (e.g. was it worthwhile, what did you learn from it, do you have suggestions for improvment if the course is offered again)?</li>
+<li class="a">
+We learned some metaprogramming, which was fun! It was interesting to think about what problems we wanted to
+solve in Python vs C++. 
+</li>
+
+</ol>
+
+<!-- * * * * * * * * * * * * * * * * * * * * * -->
+<!--         ADDITIONAL INFORMATION            -->
+<!-- * * * * * * * * * * * * * * * * * * * * * -->
+
+<h2 id="reportbody">ADDITIONAL iNFORMATION</h2>
+
+<!-- Delete the entire paragraph below 
+     and replace it with your report. (Do NOT
+     keep the color:grey styling on your report! :-) -->
+
+<p>...put any additional information here, with a brief indication that no additional explanation is needed...</p>
+
+<p>
+Most of the generalization of types happens in rpchelper.h which is used by both rpcstubhelper.h and 
+rpcproxyhelper.h. 
+
+</p>
+
+</div>
+</div>
+</body>
+</html>

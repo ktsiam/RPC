@@ -1,2 +1,3 @@
-void add();
-int sub(int x, int y);
+void func1();
+void func2();
+void func3();

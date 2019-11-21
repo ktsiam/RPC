@@ -1,0 +1,213 @@
+#!/bin/env python3
+
+import subprocess
+import json
+import sys
+import os
+
+IDL_TO_JSON_EXECUTABLE = './idl_to_json'
+
+def filter_type(s):
+    if len(s) < 2 or s[0:2] != "__":
+        return s
+    return s[2:]
+
+def params(arg_types, arg_names):
+    params = []
+    for (t, n) in zip(arg_types, arg_names):
+        base_type, sep, rest = t.partition('[')
+        p = base_type + " " + n + sep + rest
+        params.append(p)
+    return params
+
+def type_to_tuple(t):
+    base_type, sep, rest = t.partition('[')
+    if sep != '':
+        return type_to_tuple(base_type) + sep + rest
+    if t in ['int', 'bool', 'string', 'float', 'void']:
+        return t
+    else:
+        return t + '_T'
+
+def make_copyable(t):
+    base_type, sep, indexes = t.partition('[')
+    if sep != '': # T[A][B][C] --> std::array<T[B][C], A>&
+        # handling array in template type (e.g. std::array<T[A], B>)
+        if '>' in indexes: return t 
+        
+        size, sep, rest = indexes.partition(']')
+        return 'std::array<' + base_type + rest + ', ' + size + '>'
+    else:
+        return t
+    
+# struct { int a, bool v } --> std::tuple<bool, int>
+def generate_tuple_types(types):
+    s = ''
+    f_types = filter(lambda t : 'members' in types[t], types)
+    for t in f_types:
+        s += 'using ' + type_to_tuple(filter_type(t)) \
+          + ' = std::tuple<' \
+          + ', '.join(reversed([type_to_tuple(filter_type(m['type'])) for m in types[t]['members']])) \
+          + '>;\n'
+        
+    return s
+            
+# generates C++ proxy functions
+def get_proxy_funcs(funcs):
+    str_funs = []
+    for fun in funcs:
+        funname = fun
+        ret_type = funcs[fun]['return_type']
+        arg_types = [filter_type(arg['type']) 
+                for arg in funcs[fun]['arguments']]
+        arg_names = [arg['name'] 
+                for arg in funcs[fun]['arguments']]  
+        
+        s = ret_type + ' ' + funname + '('            \
+          + ', '.join(params(arg_types, arg_names)) \
+          + ') {\n\treturn '
+        
+        if (ret_type != 'void'):
+            s += 'cast_to<' + ret_type + '>'
+        
+        s += '(\n\tserialize_and_apply<' + type_to_tuple(ret_type)
+        
+        for t in map(make_copyable, map(type_to_tuple, arg_types)):
+            s += ", " + t
+        s += '>(\n\t\t"' + funname + '"'
+        
+        for t, n in zip(arg_types, arg_names):
+            s += ',\n\t\tcast_to<' + make_copyable(type_to_tuple(t)) + '>' \
+              + '(' + n + ')'
+                
+                
+        s += '));\n}'
+
+        str_funs.append(s)
+    return str_funs
+
+# generates C++ stub functions
+def get_stub_funcs(funcs):
+    str_funs = []
+    
+    # generate a inter and stub function for each idl function
+    for fun in funcs:
+        
+        funname = fun
+        ret_type = funcs[fun]['return_type']
+        arg_types = [filter_type(arg['type']) 
+                for arg in funcs[fun]['arguments']]
+        arg_names = [arg['name'] 
+                for arg in funcs[fun]['arguments']]
+
+        # inter function
+        inter_funname = '__' + funname + '_inter'
+        
+        s = type_to_tuple(ret_type) + ' ' + inter_funname + '('
+        sep = ''
+        for t, n in zip(arg_types, arg_names):
+            s += sep + make_copyable(type_to_tuple(t)) + ' ' + n
+            sep = ', '
+        s += ') {\n\treturn '
+        
+        if ret_type != 'void':
+            s += 'cast_to<' + type_to_tuple(ret_type) + '>'
+            
+        s += '(\n\t' + funname + '('
+        
+        sep = ''
+        for t, n in zip(arg_types, arg_names):
+            s += '\n\t\t' + sep + 'cast_to<' + t + '>' \
+              + '(' + n + ')'
+            sep = ', '
+        s += '));\n}\n\n'
+        
+        # stub function
+        s += 'void __' + funname     \
+          + '() {\n\t__deserialize_and_apply<' \
+          + type_to_tuple(ret_type)
+        
+        for t in map(type_to_tuple, arg_types):
+            s += ', ' + make_copyable(t)
+        s += '>(' + inter_funname + ');\n}' 
+        
+        str_funs.append(s)
+        
+    # dispatch function
+    dispatch_fun = """void dispatchFunction() {
+    char functionNameBuffer[50];
+    getFunctionNameFromStream(functionNameBuffer,
+                              sizeof(functionNameBuffer));
+    if (!RPCSTUBSOCKET-> eof()) {"""
+    
+    for fun in funcs:
+        dispatch_fun += '\n\tif (strcmp(functionNameBuffer,"' + fun + '") == 0) {\n\t\t' \
+        + '__' + fun + '();\n\t\treturn;\n\t}'
+       
+    dispatch_fun += '\n\tassert(false && "function contract not found");\n\t}\n}'
+    
+    str_funs.append(dispatch_fun)
+    return str_funs
+
+def get_stub(tree, idl_name):
+    contents = """
+#include "rpcstubhelper.h"
+#include <tuple>
+#include <cassert>\n""" + \
+    '#include "' + idl_name + '"\n\n'
+    
+    contents += generate_tuple_types(tree['types']) + '\n\n'
+    contents += "\n\n".join(get_stub_funcs(tree['functions']))
+    return contents
+
+def get_proxy(tree, idl_name):
+    contents = """
+#include "rpcproxyhelper.h"
+#include <tuple>\n""" + \
+    '#include "' + idl_name + '"\n\n'
+    contents += generate_tuple_types(tree['types']) + '\n\n'
+    contents += "\n\n".join(get_proxy_funcs(tree['functions']))
+    return contents
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+    
+try:
+    if len(sys.argv) != 2:
+        raise "Wrong number of arguments"
+
+    filename = sys.argv[1]
+    if (not os.path.isfile(filename)):
+        eprint("Path", filename, "does not designate a file")
+        raise "No file named " + filename
+
+    if (not os.access(filename, os.R_OK)):
+        eprint("File", filename, "is not readable")
+        raise "File " + filename + " not readable"
+
+    if (not os.path.isfile(IDL_TO_JSON_EXECUTABLE)):
+        eprint("Path", IDL_TO_JSON_EXECUTABLE, "does not designate a file...run \"make\" to create it")
+        raise "No file named " + IDL_TO_JSON_EXECUTABLE
+
+    if (not os.access(IDL_TO_JSON_EXECUTABLE, os.X_OK)):
+        eprint("File", IDL_TO_JSON_EXECUTABLE, "exists but is not executable")
+        raise "File " + IDL_TO_JSON_EXECUTABLE + " not executable"
+
+
+    decls = json.loads(subprocess.check_output([IDL_TO_JSON_EXECUTABLE, filename]).decode('utf-8'))
+    
+    # generating files
+    proxy = get_proxy(decls, filename)
+    stub = get_stub(decls, filename)
+    
+    idl_name = filename[:-4]
+
+    with open(idl_name + '.proxy.cpp', 'w') as proxy_f:
+        print(proxy, file=proxy_f)
+
+    with open(idl_name + '.stub.cpp', 'w') as stub_f:
+        print(stub, file=stub_f)
+
+except Exception as e:
+    eprint(e)
+    eprint("Usage:", sys.argv[0], "<idlfilename>")

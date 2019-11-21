@@ -1,12 +1,57 @@
+// --------------------------------------------------------------
+//
+//                        simplefunctionclient.cpp
+//
+//        Author: Noah Mendelsohn         
+//   
+//
+//        This is a test program designed to call a few demonstration
+//        functions, after first enabling the COMP 150-IDS rpcproxyhelper.
+//        (The purpose of the helper is to open a TCP stream connection
+//        to the proper server, and to leave the socket pointer where
+//        the generated proxies can find it.
+//
+//        NOTE: Although this example does nothing except test the
+//        functions, we may test your proxies and stubs with client
+//        applications that do real work. 
+//
+//        NOTE: When actually testing your RPC submission, you will use
+//        a different client application for each set of functions. This
+//        one is just to show a simple example.
+//
+//        NOTE: The only thing that makes this different from 
+//        an ordinary local application is the call to
+//        rpcproxyinitialize. If you commented that out, you could
+//        link this with the local version of simplefunction.o
+//        (which has the remotable function implementations)							    
+//
+//        COMMAND LINE
+//
+//              simplefunctionclient <servername> 
+//
+//        OPERATION
+//
+//
+//       Copyright: 2012 Noah Mendelsohn
+//     
+// --------------------------------------------------------------
 
+
+// IMPORTANT! WE INCLUDE THE IDL FILE AS IT DEFINES THE INTERFACES
+// TO THE FUNCTIONS WE'RE REMOTING. OF COURSE, THE PARTICULAR IDL FILE
+// IS CHOSEN ACCORDING TO THE TEST OR APPLICATION
+// 
+// NOTE THAT THIS IS THE SAME IDL FILE INCLUDED WITH THE PROXIES
+// AND STUBS, AND ALSO USED AS INPUT TO AUTOMATIC PROXY/STUB
+// GENERATOR PROGRAM
+
+#include "simplefunction.idl"
 
 #include "rpcproxyhelper.h"
-#include "lotsofstuff.idl"
 
 #include "c150debug.h"
 #include "c150grading.h"
 #include <fstream>
-#include <iostream>
 
 using namespace std;          // for C++ std library
 using namespace C150NETWORK;  // for all the comp150 utilities 
@@ -68,48 +113,24 @@ main(int argc, char *argv[]) {
 
        // 
        // Call (possibly remote) func1
-       //       
-       // add(); int x = 3;
-       // add(); int y = 4;
-       // int z = sub(16, 8);
-       // std::cerr << "DONE!!!!!!!\n";
-       // std::cerr << "got " << x << ' ' << y << ' ' << z << std::endl;
-       
-       Person bob{"bob", "builder", 47};
-       Person mark = findPerson({bob, bob, bob});
-       std::cout << "name : " << mark.firstname << ' ' << mark.lastname << ' ' << mark.age << std::endl;
+       //
+       printf("Calling func1()\n");
+       func1();                          // remote call (we hope!)
+       printf("Returned from func1()\n");
 
-       func1();
-       func2();
-       func3();
-       
-       std::cout << "1 + 2 = " << sqrt(1,2) << std::endl;
-       int arr[24] = {0};
-       int arr2[24] = {0};
-       // std::array<int, 24> arr = {0};
-       // std::array<int, 24> arr2 = {0};
+       // 
+       // Call (possibly remote) func2
+       //
+       printf("Calling func2()\n");
+       func2();                          // remote call (we hope!)
+       printf("Returned from func2()\n");
 
-       arr[0] = 17;
-       arr2[0] = 36;
-       
-       std::cout << "17 + 36 = " << takesTwoArrays(arr, arr2) << std::endl;
-
-       int arr3[24][15] = {0};
-       arr3[0][0] = 3;
-
-       //std::cout << "17 + 3 + 3 = " << showsArraysofArrays(arr, arr3, arr3) << std::endl;
-       
-       std::string s = "Mr Krabs";
-
-       std::cout << "mr krabs: " << upcase(s) << std::endl;
-
-       std::cout << "3.1 * 4.2 = " << multiply(3.1, 4.2) << std::endl;
-
-       rectangle r = {3, 4};
-       
-       std::cout << "3 * 4 = " << area(r) << std::endl;
-
-       exit(0);
+       // 
+       // Call (possibly remote) func3
+       //
+       printf("Calling func3()\n");
+       func3();                          // remote call (we hope!)
+       printf("Returned from func3()\n");
      }
 
      //

@@ -1,7 +1,7 @@
 #ifndef __RPCSTUBHELPER_H_INCLUDED__  
 #define __RPCSTUBHELPER_H_INCLUDED__  
 
-#include "rpchelper.h"
+#include "rpchelper.h" // serialization/deserialization
 
 extern C150StreamSocket *RPCSTUBSOCKET;
  
@@ -11,7 +11,11 @@ void getFunctionNameFromStream(char *buffer, unsigned int bufSize);
 
 template <class Ret_T, class ...Args, class F>
 void __deserialize_and_apply(F&& fun) {
+
+    // receiving arguments as tuple
     std::tuple<Args...> args = deserialize<Args...>(RPCSTUBSOCKET);
+
+    // if void function, send `struct Void {}`
     if constexpr (std::is_void_v<Ret_T>) {
         std::apply(fun, args);
         std::tuple<Void> ret_tup;

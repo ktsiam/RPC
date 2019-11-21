@@ -1,18 +1,20 @@
 #ifndef __RPCHELPER_H_INCLUDED__  
 #define __RPCHELPER_H_INCLUDED__  
+
+#include <tuple>
 #include "c150streamsocket.h"
 #include "c150debug.h"
-#include <tuple>
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
+// reinterpret casts to output type
 template <class Out, class In>
 auto cast_to(In &&in) {
     using decay_In  = std::decay_t<In>;
     using decay_Out = std::decay_t<Out>;
     using Ref_Out = std::add_rvalue_reference_t<decay_Out>;
     
-    // 2 arrays
+    // arrays -> array
     if constexpr (std::is_pointer_v<decay_In> &&
                   std::is_pointer_v<decay_Out>) {
         return reinterpret_cast<Ref_Out>(in);
@@ -32,13 +34,20 @@ auto cast_to(In &&in) {
     }
 }
 
+// Custom serializable 1-byte "void" return
 struct Void {};
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Serialization/Deserialization functions follow  *
+ * * * * * * * * * (see line ~100) * * * * * * * * */
+
 
 // determines whether type is specialization of tuple
 template <class> 
 struct is_tuple: std::false_type {};
-template <class ...T> 
-struct is_tuple<std::tuple<T...>>: std::true_type {};
+template <class ...Ts> 
+struct is_tuple<std::tuple<Ts...>>: std::true_type {};
 
 // applies serialize_strings forall elements in tuple
 template<class ...Tps>
@@ -49,7 +58,7 @@ template<class ...Tps>
 void deserialize_for_each_in_tuple(std::tuple<Tps...>&, C150StreamSocket *socket);
 
 
-// identifies strings in structure and deserializes them from socket
+// identifies expected strings in structure and deserializes them from socket
 template <class Arg>
 void deserialize_strings(Arg &arg, C150StreamSocket *socket) {
     if constexpr (std::is_array_v<Arg>) {
@@ -69,6 +78,7 @@ void deserialize_strings(Arg &arg, C150StreamSocket *socket) {
     }
 }
 
+// identifies expected strings in structure and serializes them to socket
 template <class Arg>
 void serialize_strings(Arg &arg, C150StreamSocket *socket) {
     if constexpr (std::is_array_v<Arg>) {
@@ -84,6 +94,8 @@ void serialize_strings(Arg &arg, C150StreamSocket *socket) {
     }
 }
 
+
+// next two functions used by stub & proxy to serialize/deserialize
 template <class ...Args>
 std::tuple<Args...> deserialize(C150StreamSocket *socket) {
     std::tuple<Args...> args;
@@ -99,7 +111,7 @@ void serialize(std::tuple<Args...> &args, C150StreamSocket *socket) {
 }
 
 
-// IMPLEMENTATION //
+// helper: Iterating through structure/tuple to identify strings
 
 template<size_t I, class ...Tps>
 void deserialize_for_each_in_tuple(std::tuple<Tps...> &tup,
